@@ -1,4 +1,12 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
+<svg width="960" height="500"></svg>
+
+{{#if dataAvailable}}
+  <section>
+    {{data}}
+  </section>
+{{else}}
+  <p class="error">data is unavailable</p>
+{{/if}}
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="/javascripts/app.js"></script>

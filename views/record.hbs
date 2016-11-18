@@ -1,0 +1,17 @@
+<form method="post" action="">
+  <label>Ammonia: <input type="text" name="ammonia" value="0"></label>
+  <label>Nitrite NO<subscript>2</subscript>: <input type="number" name="nitrite" value="0"></label>
+  <label>pH: <input type="number" name="ph" value="7"></label>
+  <label>Nitrate NO<subscript>3</subscript>: <input type="number" name="nitrate" value="0"></label>
+  <button type="submit">record</button>
+</form>
+
+{{#if success}}
+<section class="success">
+  <h3>data recorded</h3>
+  {{#each success as |value key|}}
+    {{key}}: {{value}}
+  {{/each}}
+</section>
+{{/if}}
+

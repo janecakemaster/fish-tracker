@@ -1,8 +1,65 @@
+/* base */
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 14px Monaco, monospace;
 }
 
-a {
-  color: #00B7FF;
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0;
+}
+
+a,
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  padding: 5px;
+  text-transform: uppercase;
+}
+
+input {
+  padding: 5px;
+}
+
+/* example graph */
+
+.axis--x path {
+  display: none;
+
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+/* record data form */
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem 0;
+}
+
+form label {
+  margin: 5px 0;
+}
+
+form button {
+  width: 5rem;
+  background: none;
+  border: 1px solid gray;
+  margin-top: 1rem;
+}
+
+.success {
+  border: 1px solid blue;
+  padding: 1rem;
 }
