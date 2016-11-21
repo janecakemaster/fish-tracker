@@ -1,51 +1,77 @@
-const svg = d3.select('#example')
-const margin = {top: 20, right: 20, bottom: 30, left: 50}
-const width = +svg.attr('width') - margin.left - margin.right
-const height = +svg.attr('height') - margin.top - margin.bottom
-const g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 80, bottom: 30, left: 50},
+    width = svg.attr("width") - margin.left - margin.right,
+    height = svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-const parseTime = d3.timeParse('%d-%b-%y')
+var parseTime = d3.timeParse("%Y%m%d");
 
-const x = d3.scaleTime()
-  .rangeRound([0, width])
+var x = d3.scaleTime().range([0, width]),
+    y = d3.scaleLinear().range([height, 0]),
+    z = d3.scaleOrdinal(d3.schemeCategory10);
 
-const y = d3.scaleLinear()
-  .rangeRound([height, 0])
+var line = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.temperature); });
 
-const line = d3.line()
-  .x((d) => x(d.date))
-  .y((d) => y(d.close))
+d3.tsv("data.tsv", type, function(error, data) {
+  if (error) throw error;
 
-d3.tsv('/data/example.tsv', (d) => {
-  d.date = parseTime(d.date)
-  d.close = +d.close
-  return d
-}, (error, data) => {
-  if (error) throw error
+  var cities = data.columns.slice(1).map(function(id) {
+    return {
+      id: id,
+      values: data.map(function(d) {
+        return {date: d.date, temperature: d[id]};
+      })
+    };
+  });
 
-  x.domain(d3.extent(data, (d) => d.date))
-  y.domain(d3.extent(data, (d) => d.close))
+  x.domain(d3.extent(data, function(d) { return d.date; }));
 
-  g.append('g')
-    .attr('class', 'axis axis--x')
-    //.attr('transform', 'translate(0,' + height + ')')
-    .attr('transform', `translate(0,${height})`)
-    .call(d3.axisBottom(x))
+  y.domain([
+    d3.min(cities, function(c) { return d3.min(c.values, function(d) { return d.temperature; }); }),
+    d3.max(cities, function(c) { return d3.max(c.values, function(d) { return d.temperature; }); })
+  ]);
 
-  g.append('g')
-    .attr('class', 'axis axis--y')
-    .call(d3.axisLeft(y))
-    .append('text')
-    .attr('fill', '#000')
-    .attr('transform', 'rotate(-90)')
-    .attr('y', 6)
-    .attr('dy', '0.71em')
-    .style('text-anchor', 'end')
-    .text('Price ($)')
+  z.domain(cities.map(function(c) { return c.id; }));
 
-  g.append('path')
-    .datum(data)
-    .attr('class', 'line')
-    .attr('d', line)
-})
+  g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
 
+  g.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .text("Temperature, ºF");
+
+  var city = g.selectAll(".city")
+    .data(cities)
+    .enter().append("g")
+      .attr("class", "city");
+
+  city.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return z(d.id); });
+
+  city.append("text")
+      .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
+      .attr("x", 3)
+      .attr("dy", "0.35em")
+      .style("font", "10px sans-serif")
+      .text(function(d) { return d.id; });
+});
+
+function type(d, _, columns) {
+  d.date = parseTime(d.date);
+  for (var i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];
+  return d;
+}
