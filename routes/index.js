@@ -20,7 +20,6 @@ router.get('/', (req, res, next) => {
 function parseData(data) {
   const parsed = dsv.tsvParse(data);
   const rows = parsed.filter((el) => parseInt(el.ammonia, 10) !== NaN)
-  console.log(rows)
 
   return parsed
 }
